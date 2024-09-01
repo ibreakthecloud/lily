@@ -1,10 +1,4 @@
 # Atlan Lily
 
-## High Level Design
-// TODO
-
-
-## Low Level Design
-
-![LLD](./assets/atlan-lily.jpg)
+1. [Design](design.md)
 
