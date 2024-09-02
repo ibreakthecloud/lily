@@ -51,4 +51,4 @@
 
 ## Design Diagram
 
-![Design Diagram](./assets/lily-LLD-final.png)
+![Design Diagram](../assets/lily-LLD-final.png)
