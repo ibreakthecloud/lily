@@ -2,6 +2,7 @@ package neo4j
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/ibreakthecloud/lily/pkg/models"
@@ -27,16 +28,48 @@ func StoreAnnotationInNeo4j(ctx context.Context, annotation models.Annotation, d
 	session := driver.NewSession(ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close(ctx)
 
-	// Create or match the entity node
-	_, err := session.Run(ctx, "MERGE (e:Entity {name: $entity_name}) "+
-		"MERGE (a:Annotation {type: $type, description: $description}) "+
-		"MERGE (e)-[:ANNOTATED_AS]->(a)",
+	// todo: fix this
+	query := `
+		MERGE (e:%s {id: $entity_name, name: $entity_name})
+		MERGE (n:Annotation {type: $type})
+		MERGE (e)-[:ANNOTATED_AS]->(n)
+		SET n.description = $description
+	`
+
+	query = fmt.Sprintf(query, annotation.EntityType)
+	_, err := session.Run(ctx, query,
 		map[string]interface{}{
 			"entity_name": annotation.EntityName,
+			"entity_type": annotation.EntityType,
 			"type":        annotation.Type,
 			"description": annotation.Description,
 		})
 	if err != nil {
 		log.Printf("Failed to store annotation in Neo4j: %s", err)
+	}
+}
+
+func StoreIssueInNeo4j(ctx context.Context, issue models.DataIssue, driver neo4j.DriverWithContext) {
+	session := driver.NewSession(ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+	defer session.Close(ctx)
+
+	issueId := issue.TableName + issue.ColumnName + issue.IssueType
+
+	_, err := session.Run(ctx, `
+				MERGE (t:Table {name: $table_name, id: $table_name})
+				MERGE (c:Column {name: $column_name, id: $column_name})
+				MERGE (t)-[:HAS_COLUMN]->(c)
+				CREATE (i:DataIssue {id: $issue_id, table_name: $table_name, column_name: $column_name, issue_type: $issue_type, issue_severity: $issue_severity})
+				MERGE (c)-[:HAS_ISSUE]->(i)
+				`,
+		map[string]interface{}{
+			"table_name":     issue.TableName,
+			"column_name":    issue.ColumnName,
+			"issue_type":     issue.IssueType,
+			"issue_severity": issue.IssueSeverity,
+			"issue_id":       issueId,
+		})
+	if err != nil {
+		log.Printf("Failed to insert into Neo4j: %s", err)
 	}
 }

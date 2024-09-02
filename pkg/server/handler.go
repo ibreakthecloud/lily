@@ -15,7 +15,7 @@ func monteCarloIncident(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
-	kfka.ProduceMonteCarlo(incident)
+	kfka.Producer.ProduceMonteCarlo(incident)
 	c.JSON(http.StatusOK, gin.H{"message": "Incident sent"})
 }
 
@@ -27,6 +27,6 @@ func annotateData(c *gin.Context) {
 		return
 	}
 
-	kfka.ProduceDataAnnotation(annotation)
+	kfka.Producer.ProduceDataAnnotation(annotation)
 	c.JSON(http.StatusOK, gin.H{"message": "Annotation sent"})
 }

@@ -20,6 +20,11 @@ func main() {
 
 	defer neo4jClient.Close(ctx)
 
+	kfka.Producer, err = kfka.NewProducer()
+	if err != nil {
+		log.Fatalf("Failed to create Kafka producer: %s", err)
+	}
+
 	kfka.InitTopics(ctx) // Initialize Kafka topics
 
 	go kfka.ConsumeDataIssues(ctx, neo4jClient)      // Start consuming inbound data issues

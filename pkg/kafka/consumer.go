@@ -35,17 +35,7 @@ func ConsumeDataIssues(ctx context.Context, driver neo4j.DriverWithContext) {
 		if err == nil {
 			var issue models.DataIssue
 			json.Unmarshal(msg.Value, &issue)
-
-			_, err = session.Run(ctx, "CREATE (i:DataIssue {table_name: $table_name, column_name: $column_name, issue_type: $issue_type, issue_severity: $issue_severity})",
-				map[string]interface{}{
-					"table_name":     issue.TableName,
-					"column_name":    issue.ColumnName,
-					"issue_type":     issue.IssueType,
-					"issue_severity": issue.IssueSeverity,
-				})
-			if err != nil {
-				log.Printf("Failed to insert into Neo4j: %s", err)
-			}
+			neo.StoreIssueInNeo4j(ctx, issue, driver)
 		} else {
 			log.Printf("Error while consuming message: %s", err)
 		}
