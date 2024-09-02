@@ -18,3 +18,8 @@ The prototype for the Atlan Lily project will focus on implementing a simplified
    - Annotations are produced to the atlan_data_annotations Kafka topic.
    - Kafka consumer listens to this topic, processes messages, and stores them in Neo4j.
    Note: In prototype data annotations is an api call to the server, in actual implementation it will be a part of the metadata transformation service.
+
+   ## Diagrams
+
+   ### Metadata DB, Neo4j view with lineage, data quality(monte-carlo) and annotations
+   ![Neo4j](../assets/prototype-metadata.png)
